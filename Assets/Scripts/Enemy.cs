@@ -6,15 +6,23 @@ using TMPro;  // TextMeshPro 네임스페이스
 public class Enemy : MonoBehaviour
 {
     public float speed;
-    public float health = 100f;  // 체력 변수 (기본값: 100)
-    private Rigidbody2D target;  // Player의 Rigidbody2D를 타겟으로 설정
+    [SerializeField]
+    public float health = 100f;      // 체력 변수 (기본값: 100)
+    [SerializeField]
+    public float enemyAttackPower = 10f;   // enemy의 공격력 변수
+
+    private Rigidbody2D target;      // Player의 Rigidbody2D를 타겟으로 설정
     private bool isLived = true;
 
     private Rigidbody2D rigid;
     private SpriteRenderer spriter;
 
-    // Damage text 관련 변수
-    private TextMeshPro damageText; // 자식 오브젝트에 추가할 TextMeshPro 컴포넌트
+    // DamageText와 AttackPowerText를 위한 변수
+    private TextMeshPro damageText;       
+    private TextMeshPro attackPowerText;  
+
+    // 💰 코인 관련 변수 추가
+    public GameObject coinPrefab; // 인스펙터에서 코인 프리팹을 할당하세요.
 
     void Awake()
     {
@@ -32,41 +40,43 @@ public class Enemy : MonoBehaviour
             Debug.LogError("Player object not found! Ensure your player has the 'Player' tag.");
         }
 
-        // Enemy의 자식 오브젝트를 생성하여 DamageText를 위한 TextMeshPro 컴포넌트를 추가
-        GameObject textObj = new GameObject("DamageText");
-        textObj.transform.SetParent(transform); 
-        // 적의 위쪽에 배치 (localPosition으로 상대적 위치 설정)
-        textObj.transform.localPosition = new Vector3(0, 1.5f, 0);  
-
-        // TextMeshPro 컴포넌트 추가
-        damageText = textObj.AddComponent<TextMeshPro>();
-        damageText.fontSize = 3;           // 글씨 크기 (필요에 따라 조정)
-        damageText.color = Color.red;      // 글씨 색상
+        // DamageText 자식 오브젝트 생성 (데미지 표시용)
+        GameObject dmgTextObj = new GameObject("DamageText");
+        dmgTextObj.transform.SetParent(transform);
+        dmgTextObj.transform.localPosition = new Vector3(0, 1.5f, 0);  // enemy 위쪽에 배치
+        damageText = dmgTextObj.AddComponent<TextMeshPro>();
+        damageText.fontSize = 3;            
+        damageText.color = Color.red;       
         damageText.alignment = TextAlignmentOptions.Center;
-        damageText.text = "";              // 초기 텍스트는 비워둠
-        damageText.enabled = false;        // 처음에는 텍스트를 숨김
+        damageText.text = "";               
+        damageText.enabled = false;         
+
+        // AttackPowerText 자식 오브젝트 생성 (공격력 표시용)
+        GameObject apTextObj = new GameObject("AttackPowerText");
+        apTextObj.transform.SetParent(transform);
+        apTextObj.transform.localPosition = new Vector3(0, 2.5f, 0);
+        attackPowerText = apTextObj.AddComponent<TextMeshPro>();
+        attackPowerText.fontSize = 3;         
+        attackPowerText.color = Color.yellow; 
+        attackPowerText.alignment = TextAlignmentOptions.Center;
+        attackPowerText.text = "AP: " + enemyAttackPower.ToString();
+        attackPowerText.enabled = true;
     }
 
     void FixedUpdate() 
     {
-        if(!isLived) // isLived가 false이면 실행하지 않음
-            return; 
+        if (!isLived) return; 
 
-        // 타겟(플레이어)와의 방향 벡터 계산
+        // 타겟(플레이어)와의 방향 벡터 계산 및 이동 처리
         Vector2 dirVec = target.position - rigid.position;
         Vector2 nextVec = dirVec.normalized * speed * Time.fixedDeltaTime; 
-        rigid.MovePosition(rigid.position + nextVec); // 현재위치 + 다음위치
-
-        // 주의: rigid.velocity를 매 프레임 0으로 만드는 경우 밀리는 효과 등이 없어질 수 있으므로 필요에 따라 제거
-        rigid.velocity = Vector2.zero;
+        rigid.MovePosition(rigid.position + nextVec);
+        rigid.velocity = Vector2.zero; 
     }
 
     void LateUpdate() 
     {
-        if(!isLived) 
-            return; 
-
-        // 플레이어 위치에 따라 스프라이트 방향을 반전시킴
+        if (!isLived) return; 
         spriter.flipX = target.position.x < rigid.position.x;
     }
 
@@ -88,6 +98,17 @@ public class Enemy : MonoBehaviour
     private void Die()
     {
         isLived = false;
+
+        // 💰 코인 생성 기능 추가
+        if (coinPrefab != null)
+        {
+            Instantiate(coinPrefab, transform.position, Quaternion.identity);
+        }
+        else
+        {
+            Debug.LogWarning("coinPrefab이 설정되지 않았습니다! 인스펙터에서 할당하세요.");
+        }
+
         Destroy(gameObject);
     }
 
@@ -96,13 +117,13 @@ public class Enemy : MonoBehaviour
     {
         damageText.text = damage.ToString();
         damageText.enabled = true;
-        // 코루틴을 통해 일정 시간 후 텍스트 숨김
         StartCoroutine(HideDamageText());
     }
 
+    // 일정 시간 후 데미지 텍스트 숨김 처리
     private IEnumerator HideDamageText()
     {
-        yield return new WaitForSeconds(1f);  // 1초 후
+        yield return new WaitForSeconds(1f);
         damageText.enabled = false;
     }
 }

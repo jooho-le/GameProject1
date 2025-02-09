@@ -113,7 +113,7 @@ Transform:
   m_GameObject: {fileID: 5632415520534037089}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -1.87, y: -1.72, z: 0}
-  m_LocalScale: {x: 0.330847, y: 0.330847, z: 0.330847}
+  m_LocalScale: {x: 0.3136469, y: 0.3136469, z: 0.3136469}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 5252504091856197159}
@@ -185,8 +185,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 0.3
-  health: 1000
-  knockbackForce: 100
+  health: 100
+  enemyAttackPower: 10
+  coinPrefab: {fileID: 4772529311461345144, guid: 91db0334ba5b2d94bbb7577a4011d743, type: 3}
 --- !u!50 &5752859154792770095
 Rigidbody2D:
   serializedVersion: 4
