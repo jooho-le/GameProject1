@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;  // 🔴 UI 패널 사용을 위해 추가
 using TMPro;
 
 public class Player : MonoBehaviour
@@ -18,13 +19,26 @@ public class Player : MonoBehaviour
     private TextMeshPro hpText;
     private TextMeshPro damageTakenText;
 
-    // ✅ UI에 배치할 코인 개수 텍스트
-    public TextMeshProUGUI coinText; // 🎯 Canvas에 있는 UI 연결
+    public TextMeshProUGUI coinText; // 🎯 Canvas UI 연결
+    private Image damageOverlay;     // 🔴 붉은 화면 효과용 UI 패널
+    private float overlayDuration = 0.2f; // 0.5초 지속
 
     void Awake()
     {
         rigid = GetComponent<Rigidbody2D>();
         spriter = GetComponent<SpriteRenderer>();
+
+        // 🔴 UI 패널 찾기
+        GameObject overlayObj = GameObject.Find("DamageOverlay");
+        if (overlayObj != null)
+        {
+            damageOverlay = overlayObj.GetComponent<Image>();
+            damageOverlay.color = new Color(1, 0, 0, 0); // 시작할 때 투명
+        }
+        else
+        {
+            Debug.LogError("DamageOverlay UI 패널을 찾을 수 없습니다!");
+        }
 
         // HP 텍스트 생성
         GameObject hpTextObj = new GameObject("HPText");
@@ -125,6 +139,10 @@ public class Player : MonoBehaviour
         {
             GameOver();
         }
+        else
+        {
+            StartCoroutine(ShowDamageEffect()); // 🔴 피격 효과 실행
+        }
     }
 
     void DisplayDamageTakenText(float damage)
@@ -140,6 +158,16 @@ public class Player : MonoBehaviour
         damageTakenText.enabled = false;
     }
 
+    IEnumerator ShowDamageEffect()
+    {
+        if (damageOverlay != null)
+        {
+            damageOverlay.color = new Color(1, 0, 0, 0.2f); // 🔴 반투명 빨간색
+            yield return new WaitForSeconds(overlayDuration);
+            damageOverlay.color = new Color(1, 0, 0, 0); // ⬜ 다시 투명하게
+        }
+    }
+
     void GameOver()
     {
         isGameOver = true;
@@ -153,7 +181,15 @@ public class Player : MonoBehaviour
             GUIStyle style = new GUIStyle();
             style.fontSize = 50;
             style.normal.textColor = Color.red;
-            GUI.Label(new Rect(Screen.width / 2 - 100, Screen.height / 2 - 25, 200, 50), "GAME OVER", style);
+            style.alignment = TextAnchor.MiddleCenter;  // 🎯 텍스트 중앙 정렬
+
+            float width = 200;
+            float height = 50;
+            float x = (Screen.width - width) / 2;
+            float y = (Screen.height - height) / 2;
+
+            GUI.Label(new Rect(x, y, width, height), "GAME OVER", style);
         }
     }
+
 }
