@@ -6,10 +6,8 @@ using TMPro;  // TextMeshPro 네임스페이스
 public class Enemy : MonoBehaviour
 {
     public float speed;
-    [SerializeField]
-    public float health = 100f;      // 체력 변수 (기본값: 100)
-    [SerializeField]
-    public float enemyAttackPower = 10f;   // enemy의 공격력 변수
+    [SerializeField] public float health;
+    [SerializeField] public float enemyAttackPower;
 
     private Rigidbody2D target;      // Player의 Rigidbody2D를 타겟으로 설정
     private bool isLived = true;
@@ -22,7 +20,7 @@ public class Enemy : MonoBehaviour
     private TextMeshPro attackPowerText;  
 
     // 💰 코인 관련 변수 추가
-    public GameObject coinPrefab; // 인스펙터에서 코인 프리팹을 할당하세요.
+    public GameObject coinPrefab; 
 
     void Awake()
     {
@@ -43,7 +41,7 @@ public class Enemy : MonoBehaviour
         // DamageText 자식 오브젝트 생성 (데미지 표시용)
         GameObject dmgTextObj = new GameObject("DamageText");
         dmgTextObj.transform.SetParent(transform);
-        dmgTextObj.transform.localPosition = new Vector3(0, 1.5f, 0);  // enemy 위쪽에 배치
+        dmgTextObj.transform.localPosition = new Vector3(0, 0.5f, 0);  // enemy 위쪽에 배치
         damageText = dmgTextObj.AddComponent<TextMeshPro>();
         damageText.fontSize = 3;            
         damageText.color = Color.red;       
@@ -51,15 +49,15 @@ public class Enemy : MonoBehaviour
         damageText.text = "";               
         damageText.enabled = false;         
 
-        // AttackPowerText 자식 오브젝트 생성 (공격력 표시용)
+        // 🏥 HP 표시용 UI 생성
         GameObject apTextObj = new GameObject("AttackPowerText");
         apTextObj.transform.SetParent(transform);
-        apTextObj.transform.localPosition = new Vector3(0, 2.5f, 0);
+        apTextObj.transform.localPosition = new Vector3(0, 1.5f, 0);
         attackPowerText = apTextObj.AddComponent<TextMeshPro>();
         attackPowerText.fontSize = 3;         
         attackPowerText.color = Color.yellow; 
         attackPowerText.alignment = TextAlignmentOptions.Center;
-        attackPowerText.text = "AP: " + enemyAttackPower.ToString();
+        attackPowerText.text = "HP: " + health.ToString(); // ✅ 초기 HP 설정
         attackPowerText.enabled = true;
     }
 
@@ -80,13 +78,14 @@ public class Enemy : MonoBehaviour
         spriter.flipX = target.position.x < rigid.position.x;
     }
 
-    // 체력 감소 함수
+    // 체력 감소 함수 (무기와 충돌 시 호출됨)
     public void TakeDamage(float damage)
     {
         if (!isLived) return;
 
-        health -= damage;
-        DisplayDamageText(damage);
+        health -= damage; // ✅ 체력 감소
+        attackPowerText.text = "HP: " + health.ToString(); // ✅ UI 업데이트
+        DisplayDamageText(damage); // 데미지 텍스트 표시
 
         if (health <= 0)
         {

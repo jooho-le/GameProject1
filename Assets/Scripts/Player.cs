@@ -7,19 +7,19 @@ using TMPro;
 public class Player : MonoBehaviour
 {
     public Vector2 inputVec;
-    [SerializeField]
-    public float speed;
-    [SerializeField]
-    public float hp = 100f;
+    [SerializeField] public float speed;
+    [SerializeField] public float hp = 100f;
 
     private bool isGameOver = false;
-    private int coinCount = 0; // 코인 개수
+    private int coinCount = 0; // 💰 코인 개수
 
     Rigidbody2D rigid;
     SpriteRenderer spriter;
     private TextMeshPro hpText;
     private TextMeshPro damageTakenText;
-    private TextMeshPro coinText;
+
+    // ✅ UI에 배치할 코인 개수 텍스트
+    public TextMeshProUGUI coinText; // 🎯 Canvas에 있는 UI 연결
 
     void Awake()
     {
@@ -29,7 +29,7 @@ public class Player : MonoBehaviour
         // HP 텍스트 생성
         GameObject hpTextObj = new GameObject("HPText");
         hpTextObj.transform.SetParent(transform);
-        hpTextObj.transform.localPosition = new Vector3(0, 1.5f, 0);
+        hpTextObj.transform.localPosition = new Vector3(0, 0.5f, 0);
         hpText = hpTextObj.AddComponent<TextMeshPro>();
         hpText.fontSize = 3;
         hpText.color = Color.green;
@@ -39,23 +39,18 @@ public class Player : MonoBehaviour
         // 데미지 텍스트 생성
         GameObject dmgTextObj = new GameObject("DamageTakenText");
         dmgTextObj.transform.SetParent(transform);
-        dmgTextObj.transform.localPosition = new Vector3(0, 2.5f, 0);
+        dmgTextObj.transform.localPosition = new Vector3(0, 0.8f, 0);
         damageTakenText = dmgTextObj.AddComponent<TextMeshPro>();
         damageTakenText.fontSize = 3;
         damageTakenText.color = Color.red;
         damageTakenText.alignment = TextAlignmentOptions.Center;
         damageTakenText.text = "";
         damageTakenText.enabled = false;
+    }
 
-        // 코인 개수 표시 텍스트
-        GameObject coinTextObj = new GameObject("CoinText");
-        coinTextObj.transform.SetParent(transform);
-        coinTextObj.transform.localPosition = new Vector3(0, 3.5f, 0);
-        coinText = coinTextObj.AddComponent<TextMeshPro>();
-        coinText.fontSize = 3;
-        coinText.color = Color.yellow;
-        coinText.alignment = TextAlignmentOptions.Center;
-        coinText.text = "Coins: " + coinCount;
+    void Start()
+    {
+        UpdateCoinUI(); // 🎯 초기 UI 업데이트
     }
 
     void FixedUpdate()
@@ -100,7 +95,7 @@ public class Player : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Coin"))
         {
-            AddCoin(); // ✅ 코인 획득 메서드 호출
+            AddCoin(); // ✅ 코인 획득
             Destroy(collision.gameObject); // 코인 제거
         }
     }
@@ -109,8 +104,17 @@ public class Player : MonoBehaviour
     public void AddCoin()
     {
         coinCount++;
-        coinText.text = "Coins: " + coinCount; // UI 업데이트
+        UpdateCoinUI();
         Debug.Log("Coin Collected! Total: " + coinCount);
+    }
+
+    // ✅ 코인 UI를 업데이트하는 함수
+    private void UpdateCoinUI()
+    {
+        if (coinText != null)
+        {
+            coinText.text = " : " + coinCount; // 🎯 UI에 코인 개수 표시
+        }
     }
 
     void TakeDamage(float damage)
