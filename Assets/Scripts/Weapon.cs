@@ -5,7 +5,7 @@ using UnityEngine;
 public class Weapon : MonoBehaviour
 {
     [SerializeField]
-    private float attackPower = 20f;  // Weapon의 공격력 (인스펙터에서 설정 가능)
+    public float attackPower;  
     
     [SerializeField]
     private float rotationSpeed = 90f; // 초당 회전 각도 (degree per second)
