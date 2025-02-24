@@ -100,6 +100,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   attackPower: 50
+  rotationSpeed: 180
 --- !u!61 &8878068343934994687
 BoxCollider2D:
   m_ObjectHideFlags: 0
