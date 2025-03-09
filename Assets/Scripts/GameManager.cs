@@ -5,6 +5,8 @@ using TMPro;
 
 public class GameManager : MonoBehaviour
 {
+    [SerializeField]
+    public float roundTimeIncrement;
     public float roundTime = 10f;  // 라운드 타이머 (초 단위)
     private float currentTime;
     public TextMeshProUGUI timerText;  // 타이머 UI
